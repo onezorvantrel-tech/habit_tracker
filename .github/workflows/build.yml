@@ -40,12 +40,12 @@ jobs:
         sed -i '/android.aapt2FromMavenOverride/d' android/gradle.properties
         sed -i '/android.enableResourceOptimizations/d' android/gradle.properties
         
-        # 4. Собираем раздельные APK (для разных процессоров)
+        # 4. Собираем раздельные APK и ПОДПИСЫВАЕМ их
         flutter pub get
-        flutter build apk --release --split-per-abi
+        flutter build apk --release --split-per-abi -PdebugSignRelease=true
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: release-apks
+        name: signed-apks
         path: '**/*release*.apk'
