@@ -28,20 +28,27 @@ jobs:
         channel: 'stable'
         cache: true
 
-    - name: Install dependencies
-      working-directory: habit_tracker
-      run: flutter pub get
+    - name: Prepare and Build
+      run: |
+        # Если загружен ZIP-архив, распаковываем его
+        if [ -f "habit_tracker_source.zip" ]; then
+          echo "Распаковываем архив..."
+          unzip -q habit_tracker_source.zip
+        fi
 
-    - name: Clean project
-      working-directory: habit_tracker
-      run: flutter clean
+        # Если есть папка habit_tracker, заходим в нее
+        if [ -d "habit_tracker" ]; then
+          echo "Переходим в папку проекта..."
+          cd habit_tracker
+        fi
 
-    - name: Build Release APK
-      working-directory: habit_tracker
-      run: flutter build apk --release --no-tree-shake-icons
+        # Выполняем сборку
+        flutter pub get
+        flutter build apk --release --no-tree-shake-icons
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: release-apk
-        path: habit_tracker/build/app/outputs/flutter-apk/app-release.apk
+        # Ищем APK во всех вложенных папках (это 100% сработает)
+        path: '**/app-release.apk'
