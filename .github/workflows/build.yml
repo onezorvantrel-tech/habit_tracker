@@ -30,25 +30,22 @@ jobs:
 
     - name: Prepare and Build
       run: |
-        # Если загружен ZIP-архив, распаковываем его
-        if [ -f "habit_tracker_source.zip" ]; then
-          echo "Распаковываем архив..."
-          unzip -q habit_tracker_source.zip
-        fi
-
-        # Если есть папка habit_tracker, заходим в нее
-        if [ -d "habit_tracker" ]; then
-          echo "Переходим в папку проекта..."
-          cd habit_tracker
-        fi
-
-        # Выполняем сборку
+        # 1. Распаковываем твой архив
+        unzip -q habit_tracker_source.zip
+        
+        # 2. Заходим в папку проекта
+        cd habit_tracker
+        
+        # 3. Автоматически удаляем настройки Termux из gradle.properties
+        sed -i '/android.aapt2FromMavenOverride/d' android/gradle.properties
+        sed -i '/android.enableResourceOptimizations/d' android/gradle.properties
+        
+        # 4. Собираем APK (без флагов Termux)
         flutter pub get
-        flutter build apk --release --no-tree-shake-icons
+        flutter build apk --release
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: release-apk
-        # Ищем APK во всех вложенных папках (это 100% сработает)
         path: '**/app-release.apk'
