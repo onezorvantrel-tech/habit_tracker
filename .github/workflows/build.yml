@@ -36,16 +36,16 @@ jobs:
         # 2. Заходим в папку проекта
         cd habit_tracker
         
-        # 3. Автоматически удаляем настройки Termux из gradle.properties
+        # 3. Автоматически удаляем настройки Termux
         sed -i '/android.aapt2FromMavenOverride/d' android/gradle.properties
         sed -i '/android.enableResourceOptimizations/d' android/gradle.properties
         
-        # 4. Собираем APK (без флагов Termux)
+        # 4. Собираем раздельные APK (для разных процессоров)
         flutter pub get
-        flutter build apk --release
+        flutter build apk --release --split-per-abi
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: release-apk
-        path: '**/app-release.apk'
+        name: release-apks
+        path: '**/*release*.apk'
