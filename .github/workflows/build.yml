@@ -31,7 +31,7 @@ jobs:
     - name: Prepare and Build
       run: |
         # 1. Распаковываем твой архив
-        unzip -q habit_tracker_source.zip
+        unzip -q habit_tracker_source*.zip
         
         # 2. Заходим в папку проекта
         cd habit_tracker
