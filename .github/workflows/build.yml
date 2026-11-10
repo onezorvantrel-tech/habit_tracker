@@ -30,19 +30,16 @@ jobs:
 
     - name: Prepare and Build
       run: |
-        # 1. Распаковываем твой архив
         ZIP_FILE=$(find . -name "*.zip" | head -n 1)
-echo "Найден архив: $ZIP_FILE"
-unzip -q "$ZIP_FILE"
+        echo "Найден архив: $ZIP_FILE"
+        unzip -q "$ZIP_FILE"
         
-        # 2. Заходим в папку проекта
         cd habit_tracker
         
-        # 3. Автоматически удаляем настройки Termux
         sed -i '/android.aapt2FromMavenOverride/d' android/gradle.properties
         sed -i '/android.enableResourceOptimizations/d' android/gradle.properties
         
-        # 4. Собираем раздельные APK и ПОДПИСЫВАЕМ их
+        flutter clean
         flutter pub get
         flutter build apk --release --split-per-abi -PdebugSignRelease=true
 
