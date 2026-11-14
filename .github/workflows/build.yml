@@ -30,26 +30,19 @@ jobs:
 
     - name: Prepare and Build
       run: |
-        # 1. Удаляем старые распакованные папки (если остались)
         rm -rf habit_tracker
-        
-        # 2. Распаковываем свежий архив
         unzip -q habit_tracker_source.zip
-        
         cd habit_tracker
         
-        # 3. УБИВАЕМ ПРИЗРАКА: Удаляем устаревший файл, который ломает сборку
+        # 1. Обновляем версию Android Gradle Plugin (AGP) с 9.1.0 на 9.1.1
+        sed -i 's/version "9.1.0"/version "9.1.1"/g' android/settings.gradle.kts
+        
+        # 2. Обновляем версию Gradle с 9.3.1 на 9.5.0
+        sed -i 's/gradle-9.3.1-all.zip/gradle-9.5.0-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties
+        
+        # 3. Страховка от старого файла
         rm -f android/build.gradle
         
-        # 4. На всякий случай меняем заглушку в .kts файлах
-        sed -i 's/<version>/8.1.0/g' android/build.gradle.kts || true
-        sed -i 's/<version>/8.1.0/g' android/settings.gradle.kts || true
-        
-        # 5. Чистим настройки Termux
-        sed -i '/android.aapt2FromMavenOverride/d' android/gradle.properties
-        sed -i '/android.enableResourceOptimizations/d' android/gradle.properties
-        
-        # 6. Собираем
         flutter clean
         flutter pub get
         flutter build apk --release --split-per-abi -PdebugSignRelease=true
