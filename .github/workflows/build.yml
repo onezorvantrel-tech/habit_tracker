@@ -30,15 +30,26 @@ jobs:
 
     - name: Prepare and Build
       run: |
-        ZIP_FILE=$(find . -name "*.zip" | head -n 1)
-        echo "Найден архив: $ZIP_FILE"
-        unzip -q "$ZIP_FILE"
+        # 1. Удаляем старые распакованные папки (если остались)
+        rm -rf habit_tracker
+        
+        # 2. Распаковываем свежий архив
+        unzip -q habit_tracker_source.zip
         
         cd habit_tracker
         
+        # 3. УБИВАЕМ ПРИЗРАКА: Удаляем устаревший файл, который ломает сборку
+        rm -f android/build.gradle
+        
+        # 4. На всякий случай меняем заглушку в .kts файлах
+        sed -i 's/<version>/8.1.0/g' android/build.gradle.kts || true
+        sed -i 's/<version>/8.1.0/g' android/settings.gradle.kts || true
+        
+        # 5. Чистим настройки Termux
         sed -i '/android.aapt2FromMavenOverride/d' android/gradle.properties
         sed -i '/android.enableResourceOptimizations/d' android/gradle.properties
         
+        # 6. Собираем
         flutter clean
         flutter pub get
         flutter build apk --release --split-per-abi -PdebugSignRelease=true
